@@ -15,7 +15,7 @@ router.get('/', (req, res, next) => {
   res.render('pages/admin', {
     title: 'Admin page',
     msgskill: req.flash('msgskill')[0],
-    msgfile: req.flash('msgfile'),
+    msgfile: req.flash('msgfile')[0],
     skills: db.get('skills').value()
   })
 })
@@ -59,21 +59,18 @@ router.post('/upload', (req, res, next) => {
     На текущий момент эта информация хранится в файле data.json  в массиве products
   */
   const form = new formidable.IncomingForm()
-  const uploadDir = path.join(__dirname, '../public/assets/img/products')
+  const uploadDir = path.join(__dirname, '../upload')
 
   form.parse(req, (err, fields, files) => {
     if (err) {
-      req.flash('msgfile', err)
+      req.flash('msgfile', 'При загрузке что то пошло не так')
       res.redirect('/admin')
     }
 
     const { name, price } = fields
     const fileName = path.join(uploadDir, files.photo.originalFilename)
 
-    const dirPhoto = path.join(
-      './assets/img/products',
-      files.photo.originalFilename
-    )
+    const dirPhoto = files.photo.originalFilename
 
     fs.renameSync(files.photo.filepath, fileName)
     db.defaults({ products: [] })
